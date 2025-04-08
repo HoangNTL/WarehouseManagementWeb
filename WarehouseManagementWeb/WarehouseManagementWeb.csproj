@@ -199,6 +199,7 @@
     <Content Include="Views\ImportInvoice\Index.cshtml" />
     <Content Include="Views\ImportInvoice\Add.cshtml" />
     <Content Include="Views\Product\Add.cshtml" />
+    <Content Include="Views\Product\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
