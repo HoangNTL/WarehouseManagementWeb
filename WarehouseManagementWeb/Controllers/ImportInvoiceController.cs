@@ -129,5 +129,78 @@ namespace WarehouseManagementWeb.Controllers
                 return Json(new { success = true, message = "Tạo hóa đơn nhập thành công!" });
             }
         }
+
+        public ActionResult Edit()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public JsonResult Edit(ImportInvoiceDto dto)
+        {
+            using (var db = new DBDataContext())
+            {
+                var existingInvoice = db.ImportInvoices.FirstOrDefault(i => i.InvoiceCode == dto.InvoiceCode);
+                if (existingInvoice == null)
+                {
+                    return Json(new { success = false, message = "Không tìm thấy hóa đơn để cập nhật!" });
+                }
+
+                existingInvoice.ImportDate = dto.ImportDate;
+                existingInvoice.SupplierName = dto.SupplierName;
+                existingInvoice.Note = dto.Note;
+                existingInvoice.UpdatedAt = DateTime.Now;
+                db.SubmitChanges();
+
+                var oldDetails = db.ImportInvoiceDetails.Where(d => d.ImportInvoiceId == existingInvoice.Id).ToList();
+                db.ImportInvoiceDetails.DeleteAllOnSubmit(oldDetails);
+                db.SubmitChanges();
+
+                foreach (var detail in oldDetails)
+                {
+                    var product = db.Products.FirstOrDefault(p => p.Id == detail.ProductId);
+                    if (product != null)
+                    {
+                        product.Quantity -= detail.Quantity;
+                        product.UpdatedAt = DateTime.Now;
+                    }
+                }
+
+                db.SubmitChanges();
+
+                if (dto.Products != null && dto.Products.Any())
+                {
+                    foreach (var item in dto.Products)
+                    {
+                        var product = db.Products.FirstOrDefault(p => p.Code == item.ProductCode);
+                        if (product != null)
+                        {
+                            product.Quantity += item.Quantity;
+                            product.UpdatedAt = DateTime.Now;
+                            db.SubmitChanges();
+
+                            var newDetail = new ImportInvoiceDetail
+                            {
+                                ImportInvoiceId = existingInvoice.Id,
+                                ProductId = product.Id,
+                                Quantity = item.Quantity,
+                                UnitPrice = item.UnitPrice
+                            };
+
+                            db.ImportInvoiceDetails.InsertOnSubmit(newDetail);
+                        }
+                    }
+
+                    db.SubmitChanges();
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Danh sách sản phẩm rỗng!" });
+                }
+
+                return Json(new { success = true, message = "Cập nhật hóa đơn thành công!" });
+            }
+        }
+
     }
 }

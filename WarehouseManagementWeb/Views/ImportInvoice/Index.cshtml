@@ -26,9 +26,9 @@
                 <td>@invoice.SupplierName</td>
                 <td>@invoice.Note</td>
                 <td>
-                    <a href="/ImportInvoice/Edit/@invoice.Id">
+                    @*<a href="/ImportInvoice/Edit/">
                         <button class="btn btn-warning" >Sửa</button>
-                    </a>
+                    </a>*@
                     <a href="/ImportInvoice/Delete/@invoice.Id" onclick="return confirm('Xác nhận xóa?')">
                         <button class="btn btn-danger">Xóa</button>
                     </a>
