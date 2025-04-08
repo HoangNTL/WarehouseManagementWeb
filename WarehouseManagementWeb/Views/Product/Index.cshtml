@@ -1,0 +1,45 @@
+﻿@model List<WarehouseManagementWeb.Models.Product>
+
+@{
+    ViewBag.Title = "Danh sách sản phẩm";
+}
+
+<h2>Danh Sách Sản Phẩm</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>STT</th>
+            <th>Tên Sản Phẩm</th>
+            <th>Mã Sản Phẩm</th>
+            <th>Đơn Vị</th>
+            <th>Giá</th>
+            <th>Số Lượng</th>
+            <th>Ghi Chú</th>
+            <th>Thao Tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            var product = Model[i];
+            <tr>
+                <td>@(i + 1)</td>
+                <td>@product.Name</td>
+                <td>@product.Code</td>
+                <td>@product.Unit</td>
+                <td>@product.Price</td>
+                <td>@product.Quantity</td>
+                <td>@product.Description</td>
+                <td>
+                    <a href="/Product/Edit/@product.Id">
+                        <button class="btn btn-warning">Sửa</button>
+                    </a>
+                    <a href="/Product/Delete/@product.Id" onclick="return confirm('Xác nhận xóa sản phẩm này?')">
+                        <button class="btn btn-danger">Xóa</button>
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

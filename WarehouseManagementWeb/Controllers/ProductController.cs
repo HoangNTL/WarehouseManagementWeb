@@ -13,7 +13,11 @@ namespace WarehouseManagementWeb.Controllers
         // GET: Product
         public ActionResult Index()
         {
-            return View();
+            using (var db = new DBDataContext())
+            {
+                var product = db.Products.ToList();
+                return View(product);
+            }
         }
 
         public ActionResult Add()

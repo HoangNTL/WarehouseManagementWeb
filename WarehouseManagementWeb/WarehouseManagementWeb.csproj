@@ -197,7 +197,11 @@
     <Content Include="Views\ImportInvoice\Index.cshtml" />
     <Content Include="Views\ImportInvoice\Add.cshtml" />
     <Content Include="Views\Product\Add.cshtml" />
+<<<<<<< HEAD
     <Content Include="Views\ImportInvoice\Edit.cshtml" />
+=======
+    <Content Include="Views\Product\Index.cshtml" />
+>>>>>>> 3f213e54bb6374222f63ca1390369624015e57a8
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
