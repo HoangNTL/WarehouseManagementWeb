@@ -123,6 +123,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ImportInvoiceController.cs" />
+    <Compile Include="Controllers\ProductController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -131,6 +132,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>DB.dbml</DependentUpon>
     </Compile>
+    <Compile Include="Models\Dtos\ImportInvoiceDto.cs" />
+    <Compile Include="Models\Dtos\ImportInvoiceProductDto.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -194,6 +197,8 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\Partial\_Sidebar.cshtml" />
     <Content Include="Views\ImportInvoice\Index.cshtml" />
+    <Content Include="Views\ImportInvoice\Add.cshtml" />
+    <Content Include="Views\Product\Add.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

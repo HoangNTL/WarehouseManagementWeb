@@ -1,0 +1,75 @@
+﻿@{
+    ViewBag.Title = "Thêm mới sản phẩm";
+}
+
+<div class="card card-primary">
+    <div class="card-header">
+        <h3 class="card-title">Thêm mới sản phẩm</h3>
+    </div>
+    <div class="card-body">
+        <form id="productForm">
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="Name">Tên sản phẩm</label>
+                    <input type="text" class="form-control" id="Name" name="Name" placeholder="Tên sản phẩm" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="Code">Mã sản phẩm</label>
+                    <input type="text" class="form-control" id="Code" name="Code" placeholder="Mã sản phẩm" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="Description">Mô tả</label>
+                    <textarea class="form-control" id="Description" name="Description" placeholder="Mô tả sản phẩm"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="Unit">Đơn vị tính</label>
+                    <input type="text" class="form-control" id="Unit" name="Unit" placeholder="VD: cái, hộp, kg..." />
+                </div>
+
+                <div class="form-group">
+                    <label for="Price">Giá</label>
+                    <input type="number" class="form-control" id="Price" name="Price" step="0.01" placeholder="Giá sản phẩm" />
+                </div>
+
+                <div class="form-group">
+                    <label for="Quantity">Số lượng</label>
+                    <input type="number" class="form-control" id="Quantity" name="Quantity" min="0" value="0" />
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary"> Thêm sản phẩm</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#productForm').submit(function (e) {
+            e.preventDefault();
+            const formData = $(this).serialize();
+
+            $.ajax({
+                url: '@Url.Action("Create", "Product")',
+                type: 'POST',
+                data: formData,
+                success: function (res) {
+                    if (res.success) {
+                        alert(res.message);
+                        $('#productForm')[0].reset(); // Clear form
+                    } else {
+                        alert(res.message);
+                    }
+                },
+                error: function () {
+                    alert("Có lỗi xảy ra khi gửi dữ liệu.");
+                }
+            });
+        });
+    });
+</script>
+
