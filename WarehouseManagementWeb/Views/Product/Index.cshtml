@@ -16,7 +16,6 @@
             <th>Giá</th>
             <th>Số Lượng</th>
             <th>Ghi Chú</th>
-            <th>Thao Tác</th>
         </tr>
     </thead>
     <tbody>
@@ -30,15 +29,7 @@
                 <td>@product.Unit</td>
                 <td>@product.Price</td>
                 <td>@product.Quantity</td>
-                <td>@product.Description</td>
-                <td>
-                    <a href="/Product/Edit/@product.Id">
-                        <button class="btn btn-warning">Sửa</button>
-                    </a>
-                    <a href="/Product/Delete/@product.Id" onclick="return confirm('Xác nhận xóa sản phẩm này?')">
-                        <button class="btn btn-danger">Xóa</button>
-                    </a>
-                </td>
+                <td>@product.Description</td>   
             </tr>
         }
     </tbody>

@@ -202,5 +202,22 @@ namespace WarehouseManagementWeb.Controllers
             }
         }
 
+        public ActionResult FilterByDate(string fromDate, string toDate)
+        {
+            using (var db = new DBDataContext())
+            {
+                var query = db.ImportInvoices.AsQueryable();
+
+                if (DateTime.TryParse(fromDate, out var from))
+                    query = query.Where(i => i.ImportDate >= from);
+
+                if (DateTime.TryParse(toDate, out var to))
+                    query = query.Where(i => i.ImportDate <= to);
+
+                var result = query.OrderByDescending(i => i.ImportDate).ToList();
+                return PartialView("_ImportInvoiceTablePartial", result);
+            }
+        }
+
     }
 }

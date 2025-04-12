@@ -5,6 +5,21 @@
 
 <h2>Hóa Đơn Nhập</h2>
 
+<div class="row mb-3">
+    <div class="col-md-3">
+        <label>Từ ngày:</label>
+        <input type="date" id="fromDate" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <label>Đến ngày:</label>
+        <input type="date" id="toDate" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <label>&nbsp;</label>
+        <button id="filterBtn" class="btn btn-primary form-control">Lọc</button>
+    </div>
+</div>
+
 <table class="table table-bordered">
     <thead>
         <tr>
@@ -16,24 +31,27 @@
             <th>Thao Tác</th>
         </tr>
     </thead>
-    <tbody>
-        @foreach (var invoice in Model)
-        {
-            <tr>
-                <td>@invoice.Id</td>
-                <td>@invoice.InvoiceCode</td>
-                <td>@invoice.ImportDate.ToString("dd/MM/yyyy")</td>
-                <td>@invoice.SupplierName</td>
-                <td>@invoice.Note</td>
-                <td>
-                    @*<a href="/ImportInvoice/Edit/">
-                        <button class="btn btn-warning" >Sửa</button>
-                    </a>*@
-                    <a href="/ImportInvoice/Delete/@invoice.Id" onclick="return confirm('Xác nhận xóa?')">
-                        <button class="btn btn-danger">Xóa</button>
-                    </a>
-                </td>
-            </tr>
-        }
+    <tbody id="invoiceTableBody">
+        @Html.Partial("_ImportInvoiceTablePartial", Model)
     </tbody>
 </table>
+
+<script>
+    $(document).ready(function () {
+        $('#filterBtn').click(function () {
+            const fromDate = $('#fromDate').val();
+            const toDate = $('#toDate').val();
+
+            $.ajax({
+                url: '@Url.Action("FilterByDate", "ImportInvoice")',
+                data: { fromDate: fromDate, toDate: toDate },
+                success: function (data) {
+                    $('#invoiceTableBody').html(data); // Thay toàn bộ nội dung tbody
+                },
+                error: function () {
+                    alert("Đã xảy ra lỗi khi lọc dữ liệu.");
+                }
+            });
+        });
+    });
+</script>
