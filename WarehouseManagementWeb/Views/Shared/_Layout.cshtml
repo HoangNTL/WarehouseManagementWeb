@@ -29,6 +29,16 @@
     <link rel="stylesheet" href="~/Libs/plugins/daterangepicker/daterangepicker.css">
     <!-- summernote -->
     <link rel="stylesheet" href="~/Libs/plugins/summernote/summernote-bs4.min.css">
+
+    <!-- jQuery (nên là bản đầy đủ, không slim) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
     <div class="wrapper">
@@ -224,7 +234,7 @@
     </div>
     <!-- ./wrapper -->
     <!-- jQuery -->
-    <script src="~/Libs/plugins/jquery/jquery.min.js"></script>
+    @*<script src="~/Libs/plugins/jquery/jquery.min.js"></script>*@
     <!-- jQuery UI 1.11.4 -->
     <script src="~/Libs/plugins/jquery-ui/jquery-ui.min.js"></script>
     <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
@@ -258,5 +268,9 @@
     <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
     <script src="~/Libs/dist/js/pages/dashboard.js"></script>
 
+    @section Scripts {
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    }
 </body>
 </html>

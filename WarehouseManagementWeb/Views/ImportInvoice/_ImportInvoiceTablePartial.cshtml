@@ -1,16 +1,24 @@
 ﻿@model List<WarehouseManagementWeb.Models.ImportInvoice>
 
+@{ 
+    int i = 0;
+}
+
 @foreach (var invoice in Model)
 {
+    i++;
     <tr>
-        <td>@invoice.Id</td>
+        <td>@i</td>
         <td>@invoice.InvoiceCode</td>
         <td>@invoice.ImportDate.ToString("dd/MM/yyyy")</td>
         <td>@invoice.SupplierName</td>
         <td>@invoice.Note</td>
         <td>
-            <a href="/ImportInvoice/Delete/@invoice.Id" onclick="return confirm('Xác nhận xóa?')">
-                <button class="btn btn-danger">Xóa</button>
+            <a href="/ImportInvoice/Edit/@invoice.Id">
+                <button class="btn btn-warning">
+                    <i class="fas fa-edit"></i>
+                    Edit
+                </button>
             </a>
         </td>
     </tr>

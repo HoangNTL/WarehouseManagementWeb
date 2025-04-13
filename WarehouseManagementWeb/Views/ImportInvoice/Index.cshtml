@@ -15,6 +15,10 @@
         <input type="date" id="toDate" class="form-control" />
     </div>
     <div class="col-md-3">
+        <label>Từ khóa:</label>
+        <input type="text" id="searchKeyword" class="form-control" placeholder="Tìm theo mã hoặc NCC" />
+    </div>
+    <div class="col-md-3">
         <label>&nbsp;</label>
         <button id="filterBtn" class="btn btn-primary form-control">Lọc</button>
     </div>
@@ -41,10 +45,11 @@
         $('#filterBtn').click(function () {
             const fromDate = $('#fromDate').val();
             const toDate = $('#toDate').val();
+            const keyword = $('#searchKeyword').val();
 
             $.ajax({
                 url: '@Url.Action("FilterByDate", "ImportInvoice")',
-                data: { fromDate: fromDate, toDate: toDate },
+                data: { fromDate: fromDate, toDate: toDate, keyword },
                 success: function (data) {
                     $('#invoiceTableBody').html(data); // Thay toàn bộ nội dung tbody
                 },

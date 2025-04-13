@@ -64,6 +64,7 @@ namespace WarehouseManagementWeb.Controllers
                         Name = p.Name,
                         Code = p.Code,
                         Unit = p.Unit,
+                        Price = p.Price,
                     })
                     .ToList();
 
