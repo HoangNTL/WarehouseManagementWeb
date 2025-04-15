@@ -120,6 +120,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\ExportInvoiceController.cs" />
     <Compile Include="Controllers\ImportInvoiceController.cs" />
     <Compile Include="Controllers\ProductController.cs" />
     <Compile Include="Global.asax.cs">
@@ -130,7 +131,9 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>DB.dbml</DependentUpon>
     </Compile>
+    <Compile Include="Models\Dtos\ExportInvoiceDto.cs" />
     <Compile Include="Models\Dtos\ImportInvoiceDto.cs" />
+    <Compile Include="Models\Dtos\ExportInvoiceProductDto.cs" />
     <Compile Include="Models\Dtos\ImportInvoiceProductDto.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -200,6 +203,9 @@
     <Content Include="Views\ImportInvoice\Edit.cshtml" />
     <Content Include="Views\Product\Index.cshtml" />
     <Content Include="Views\ImportInvoice\_ImportInvoiceTablePartial.cshtml" />
+    <Content Include="Views\ExportInvoice\Index.cshtml" />
+    <Content Include="Views\ExportInvoice\_ExportInvoiceTablePartial.cshtml" />
+    <Content Include="Views\ExportInvoice\Add.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

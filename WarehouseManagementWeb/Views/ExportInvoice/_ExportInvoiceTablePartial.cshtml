@@ -1,0 +1,25 @@
+﻿@model List<WarehouseManagementWeb.Models.ExportInvoice>
+
+@{ 
+    int i = 0;
+}
+
+@foreach (var invoice in Model)
+{
+    i++;
+    <tr>
+        <td>@i</td>
+        <td>@invoice.InvoiceCode</td>
+        <td>@invoice.ExportDate.ToString("dd/MM/yyyy")</td>
+        <td>@invoice.CustomerName</td>
+        <td>@invoice.Note</td>
+        <td>
+            <a href="/ImportInvoice/Edit/@invoice.Id">
+                <button class="btn btn-warning">
+                    <i class="fas fa-edit"></i>
+                    Edit
+                </button>
+            </a>
+        </td>
+    </tr>
+}

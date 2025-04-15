@@ -1,0 +1,62 @@
+﻿@model List<WarehouseManagementWeb.Models.ExportInvoice>
+@{
+    ViewBag.Title = "Danh sách hóa đơn xuất";
+}
+
+<h2>Hóa Đơn Xuất</h2>
+
+<div class="row mb-3">
+    <div class="col-md-3">
+        <label>Từ ngày:</label>
+        <input type="date" id="fromDate" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <label>Đến ngày:</label>
+        <input type="date" id="toDate" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <label>Từ khóa:</label>
+        <input type="text" id="searchKeyword" class="form-control" placeholder="Tìm theo mã hoặc NCC" />
+    </div>
+    <div class="col-md-3">
+        <label>&nbsp;</label>
+        <button id="filterBtn" class="btn btn-primary form-control">Lọc</button>
+    </div>
+</div>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>STT</th>
+            <th>Mã Hóa Đơn</th>
+            <th>Ngày Xuất</th>
+            <th>Tên khách</th>
+            <th>Ghi Chú</th>
+            <th>Thao Tác</th>
+        </tr>
+    </thead>
+    <tbody id="invoiceTableBody">
+        @Html.Partial("_ExportInvoiceTablePartial", Model)
+    </tbody>
+</table>
+
+<script>
+    $(document).ready(function () {
+        $('#filterBtn').click(function () {
+            const fromDate = $('#fromDate').val();
+            const toDate = $('#toDate').val();
+            const keyword = $('#searchKeyword').val();
+
+            $.ajax({
+                url: '@Url.Action("FilterByDate", "ImportInvoice")',
+                data: { fromDate: fromDate, toDate: toDate, keyword },
+                success: function (data) {
+                    $('#invoiceTableBody').html(data); // Thay toàn bộ nội dung tbody
+                },
+                error: function () {
+                    alert("Đã xảy ra lỗi khi lọc dữ liệu.");
+                }
+            });
+        });
+    });
+</script>
