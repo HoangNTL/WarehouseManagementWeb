@@ -71,7 +71,12 @@ namespace WarehouseManagementWeb.Controllers
                                     throw new Exception($"Không tìm thấy sản phẩm với mã {item.ProductCode}");
                                 }
 
-                                product.Quantity += item.Quantity;
+                                if (product.Quantity < item.Quantity)
+                                {
+                                    throw new Exception($"Sản phẩm {product.Name} không đủ số lượng trong kho. Còn lại: {product.Quantity}, yêu cầu: {item.Quantity}");
+                                }
+
+                                product.Quantity -= item.Quantity; // giảm tồn kho
                                 product.UpdatedAt = DateTime.Now;
 
                                 var detail = new ExportInvoiceDetail
