@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace WarehouseManagementWeb.Models.Dtos
+﻿namespace WarehouseManagementWeb.Models.Dtos
 {
     public class ImportInvoiceProductDto
     {

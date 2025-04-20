@@ -1,169 +1,221 @@
-﻿<div class="card card-primary">
+﻿@{
+    ViewBag.Title = "Sửa hóa đơn nhập";
+}
+@model WarehouseManagementWeb.Models.Dtos.ImportInvoiceDto
+
+<div class="card card-primary">
     <div class="card-header">
         <h3 class="card-title">Sửa hóa đơn nhập</h3>
     </div>
     <div class="card-body">
         <form id="formHoaDonNhap">
-            <div class="card-body">
-                <div class="form-group">
-                    <label for="MaHD">Mã hóa đơn:</label>
-                    <input type="text" class="form-control" id="MaHD" name="InvoiceCode" placeholder="Mã hóa đơn">
-                </div>
-                <div class="form-group">
-                    <label for="NgayNhap">Ngày nhập:</label>
-                    <div class="input-group date" id="reservationdatetime" data-target-input="nearest">
-                        <input type="text" id="NgayNhap" name="ImportDate"
-                               class="form-control datetimepicker-input"
-                               data-target="#reservationdatetime"
-                               placeholder="Chọn ngày và giờ nhập" />
-                        <div class="input-group-append" data-target="#reservationdatetime" data-toggle="datetimepicker">
-                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                        </div>
+            <div class="form-group">
+                <label for="MaHD">Mã hóa đơn:</label>
+                <input type="text" class="form-control" id="MaHD" name="InvoiceCode" value="@Model.InvoiceCode" disabled />
+            </div>
+
+            <div class="form-group">
+                <label for="NgayNhap">Ngày nhập:</label>
+                <div class="input-group date" id="reservationdatetime" data-target-input="nearest">
+                    <input type="text" id="NgayNhap" name="ImportDate"
+                           class="form-control datetimepicker-input"
+                           data-target="#reservationdatetime"
+                           placeholder="yyyy-mm-dd"
+                           value="@Model.ImportDate.ToString("yyyy-MM-dd")" />
+                    <div class="input-group-append" data-target="#reservationdatetime" data-toggle="datetimepicker">
+                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="NhaCungCap">Nhà cung cấp:</label>
-                    <input type="text" class="form-control" id="NhaCungCap" name="SupplierName" placeholder="Tên nhà cung cấp">
-                </div>
-                <div class="form-group">
-                    <label for="NhanVien">Nhân viên nhập:</label>
-                    <input type="text" class="form-control" id="NhanVien" name="Staff" placeholder="Tên nhân viên">
-                </div>
-                <div class="form-group">
-                    <label for="GhiChu">Ghi chú:</label>
-                    <textarea class="form-control" id="GhiChu" name="Note" placeholder="Ghi chú thêm (nếu có)"></textarea>
-                </div>
-
-                <hr />
-                <h5>Chi tiết hóa đơn:</h5>
-
-                <div class="form-group">
-                    <label>Chọn sản phẩm:</label>
-                    <select class="custom-select" id="ProductId" name="ProductId" multiple>
-                        <option value="">-- Chọn sản phẩm --</option>
-                    </select>
-                </div>
-      
-                <div class="form-group">
-                    <label>Chi tiết sản phẩm đã chọn:</label>
-                    <table class="table table-bordered" id="productDetailsTable">
-                        <thead>
-                            <tr>
-                                <th>Sản phẩm</th>
-                                <th>Số lượng</th>
-                                <th>Đơn giá</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
                 </div>
             </div>
 
+            <div class="form-group">
+                <label for="NhaCungCap">Nhà cung cấp:</label>
+                <input type="text" class="form-control" id="NhaCungCap" name="SupplierName" value="@Model.SupplierName" />
+            </div>
+
+            @*<div class="form-group">
+                <label for="NhanVien">Nhân viên nhập:</label>
+                <input type="text" class="form-control" id="NhanVien" name="Staff" placeholder="Tên nhân viên" />
+            </div>*@
+
+            <div class="form-group">
+                <label for="GhiChu">Ghi chú:</label>
+                <textarea class="form-control" id="GhiChu" name="Note">@Model.Note</textarea>
+            </div>
+
+            <hr />
+            <h5>Chi tiết hóa đơn:</h5>
+
+            <div class="form-group">
+                <label>Chọn sản phẩm:</label>
+                <select class="form-control" id="ProductId" name="ProductId" multiple="multiple">
+                    <!-- Option sẽ được thêm bằng JS -->
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Chi tiết sản phẩm đã chọn:</label>
+                <table class="table table-bordered" id="productDetailsTable">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Sản phẩm</th>
+                            <th>Số lượng</th>
+                            <th>Đơn vị</th>
+                            <th>Đơn giá</th>
+                            <th>Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int index = 1;
+                            foreach (var product in Model.Products)
+                            {
+                                <tr data-code="@product.ProductCode" data-id="@product.ProductCode">
+                                    <td>@index</td>
+                                    <td>@product.ProductName (@product.ProductCode)</td>
+                                    <td><input type="number" class="form-control quantity" value="@product.Quantity" min="1" /></td>
+                                    <td><input type="text" class="form-control" value="@product.Unit" readonly /></td>
+                                    <td><input type="text" class="form-control unit-price" value="@product.UnitPrice" readonly /></td>
+                                    <td><input type="text" class="form-control total-price" value="@(product.Quantity * product.UnitPrice)" readonly /></td>
+                                </tr>
+                                index++;
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+
             <div class="card-footer">
-                <button type="submit" class="btn btn-primary">Sửa hóa đơn</button>
+                <button type="submit" class="btn btn-primary">Cập nhật hóa đơn</button>
             </div>
         </form>
     </div>
 </div>
 
+
 <script type="text/javascript">
     $(function () {
-        $('#reservationdatetime').datetimepicker({ icons: { time: 'far fa-clock' }, format: 'YYYY-MM-DD' });
-    });
-
-let allProducts = [];
-
-$(document).ready(function () {
-    const $productSelect = $('#ProductId');
-    const $productTableBody = $('#productDetailsTable tbody');
-
-    // Load sản phẩm
-    $.ajax({
-        url: '@Url.Action("GetProductsAjax", "Product")',
-        type: 'GET',
-        dataType: 'json',
-        success: function (data) {
-            allProducts = data;
-            data.forEach(item => {
-                $productSelect.append(`<option value="${item.Id}">${item.Name} (${item.Code})</option>`);
-            });
-        }
-    });
-
-    // Khi chọn sản phẩm
-    $productSelect.on('change', function () {
-        const selectedIds = $(this).val() || [];
-
-        $productTableBody.empty();
-
-        selectedIds.forEach(id => {
-            const product = allProducts.find(p => p.Id == id);
-            if (product) {
-                $productTableBody.append(`
-                <tr data-id="${product.Id}">
-                    <td>${product.Name} (${product.Code})</td>
-                    <td><input type="number" class="form-control quantity" value="1" /></td>
-                    <td><input type="number" class="form-control unit-price" step="0.01" value="0" /></td>
-                </tr>
-            `);
-            }
+        $('#reservationdatetime').datetimepicker({
+            icons: { time: 'far fa-clock' },
+            format: 'YYYY-MM-DD'
         });
     });
 
-    // Submit form
-    $('#formHoaDonNhap').submit(function (event) {
-        event.preventDefault();
+    let allProducts = [];
 
+    $(document).ready(function () {
+        const $productSelect = $('#ProductId');
+        const $productTableBody = $('#productDetailsTable tbody');
 
-        const products = [];
-        $('#productDetailsTable tbody tr').each(function () {
-            const id = $(this).data('id');
-            const quantity = parseInt($(this).find('.quantity').val());
-            const unitPrice = parseFloat($(this).find('.unit-price').val());
-
-            const product = allProducts.find(p => p.Id == id);
-            if (product) {
-                products.push({
-                    ProductCode: product.Code,
-                    ProductName: product.Name,
-                    Unit: product.Unit || "", // Nếu có đơn vị
-                    UnitPrice: unitPrice,
-                    Quantity: quantity
-                });
-            }
+        $productSelect.select2({
+            placeholder: "-- Chọn sản phẩm --",
+            allowClear: true,
+            width: 'resolve'
         });
 
-        console.log(products); // -> mảng các sản phẩm đã chọn
-
-        const invoiceData = {
-            InvoiceCode: $('#MaHD').val(),
-            ImportDate: $('#NgayNhap').val(),
-            SupplierName: $('#NhaCungCap').val(),
-            //Staff: $('#NhanVien').val(),
-            Note: $('#GhiChu').val(),
-            //Details: details
-            Products: products
-        };
-
-        console.log(invoiceData); // -> đối tượng hóa đơn nhập
-
+        // Load sản phẩm
         $.ajax({
-            url: '@Url.Action("Edit", "ImportInvoice")',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(invoiceData),
-            success: function (response) {
-                alert(response.message || 'Thêm hóa đơn thành công!');
-                $('#formHoaDonNhap')[0].reset();
-                $productTableBody.empty();
-                $('#ProductId').val([]).trigger('change');
-            },
-            error: function () {
-                alert('Đã xảy ra lỗi khi thêm hóa đơn.');
+            url: '@Url.Action("GetProductsAjax", "Product")',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                allProducts = data;
+
+                data.forEach(item => {
+                    const option = new Option(`${item.Name} (${item.Code})`, item.Id, false, false);
+                    $productSelect.append(option);
+                });
+
+                const selectedProductCodes = @Html.Raw(Json.Encode(Model.Products.Select(p => p.ProductCode)));
+                const selectedIds = allProducts
+                    .filter(p => selectedProductCodes.includes(p.Code))
+                    .map(p => p.Id.toString());
+
+                $productSelect.val(selectedIds).trigger('change');
             }
         });
-    });
-});
 
+
+        $productSelect.on('change', function () {
+            const selectedIds = $(this).val() || [];
+            $productTableBody.empty();
+            let index = 1;
+            selectedIds.forEach(id => {
+                const product = allProducts.find(p => p.Id == id);
+                if (product) {
+                    $productTableBody.append(`
+                        <tr data-id="${product.Id}">
+                            <td>${index++}</td>
+                            <td>${product.Name} (${product.Code})</td>
+                            <td><input type="number" class="form-control quantity" value="1" min="1" /></td>
+                            <td><input type="text" class="form-control" value="${product.Unit}" readonly /></td>
+                            <td><input type="text" class="form-control unit-price" value="${product.Price}" readonly /></td>
+                            <td><input type="text" class="form-control total-price" value="${product.Price}" readonly /></td>
+                        </tr>
+                    `);
+                }
+            });
+        });
+
+        // Tính lại thành tiền khi thay đổi số lượng
+        $(document).on('input', '.quantity', function () {
+            const $row = $(this).closest('tr');
+            const quantity = parseInt($(this).val()) || 0;
+            const unitPrice = parseFloat($row.find('.unit-price').val()) || 0;
+            $row.find('.total-price').val((quantity * unitPrice).toFixed(2));
+
+            // Tính tổng tiền
+            let total = 0;
+            $('#productDetailsTable tbody tr').each(function () {
+                const rowTotal = parseFloat($(this).find('.total-price').val()) || 0;
+                total += rowTotal;
+            });
+            $('#totalAmount').text(total.toFixed(2));  // Hiển thị tổng tiền ở phần giao diện
+        });
+
+        $('#formHoaDonNhap').submit(function (event) {
+            event.preventDefault();
+
+            const products = [];
+            $('#productDetailsTable tbody tr').each(function () {
+                const id = $(this).data('id');
+                const quantity = parseInt($(this).find('.quantity').val());
+                const unitPrice = parseFloat($(this).find('.unit-price').val());
+                const product = allProducts.find(p => p.Id == id);
+
+                if (product && quantity > 0) {
+                    products.push({
+                        ProductCode: product.Code,
+                        ProductName: product.Name,
+                        Quantity: quantity,
+                        UnitPrice: unitPrice
+                    });
+                }
+            });
+
+            const invoiceData = {
+                InvoiceCode: $('#MaHD').val(),
+                ImportDate: $('#NgayNhap').val(),
+                SupplierName: $('#NhaCungCap').val(),
+                Note: $('#GhiChu').val(),
+                Products: products
+            };
+
+            $.ajax({
+                url: '@Url.Action("Update", "ImportInvoice")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(invoiceData),
+                success: function (response) {
+                    alert(response.message || 'Cập nhật hóa đơn thành công!');
+                    window.location.href = '@Url.Action("Index", "ImportInvoice")'; // Redirect to the index page
+                },
+                error: function () {
+                    alert('Đã xảy ra lỗi khi cập nhật hóa đơn.');
+                }
+            });
+        });
+
+    });
 </script>
