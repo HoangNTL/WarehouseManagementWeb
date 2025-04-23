@@ -31,13 +31,13 @@
 
                 <div class="form-group">
                     <label for="Price">Giá</label>
-                    <input type="number" class="form-control" id="Price" name="Price" step="0.01" placeholder="Giá sản phẩm" />
+                    <input type="number" class="form-control" id="Price" name="Price" step="1000" placeholder="Giá sản phẩm" />
                 </div>
 
-                <div class="form-group">
+                @*<div class="form-group">
                     <label for="Quantity">Số lượng</label>
                     <input type="number" class="form-control" id="Quantity" name="Quantity" min="0" value="0" />
-                </div>
+                </div>*@
             </div>
 
             <div class="card-footer">
@@ -47,7 +47,7 @@
     </div>
 </div>
 
-<script>
+<script type="text/javascript">
     $(document).ready(function () {
         $('#productForm').submit(function (e) {
             e.preventDefault();

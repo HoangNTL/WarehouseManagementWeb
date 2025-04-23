@@ -14,11 +14,8 @@
         <td>@invoice.CustomerName</td>
         <td>@invoice.Note</td>
         <td>
-            <a href="/ImportInvoice/Edit/@invoice.Id">
-                <button class="btn btn-warning">
-                    <i class="fas fa-edit"></i>
-                    Edit
-                </button>
+            <a href="@Url.Action("Edit", "ImportInvoice", new { id = invoice.Id })" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Edit
             </a>
         </td>
     </tr>

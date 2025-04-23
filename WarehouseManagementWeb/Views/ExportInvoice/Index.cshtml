@@ -48,7 +48,7 @@
             const keyword = $('#searchKeyword').val();
 
             $.ajax({
-                url: '@Url.Action("FilterByDate", "ImportInvoice")',
+                url: '@Url.Action("FilterByDate", "ExportInvoice")',
                 data: { fromDate: fromDate, toDate: toDate, keyword },
                 success: function (data) {
                     $('#invoiceTableBody').html(data); // Thay toàn bộ nội dung tbody

@@ -39,7 +39,8 @@ namespace WarehouseManagementWeb.Controllers
                         Description = model.Description,
                         Unit = model.Unit,
                         Price = model.Price,
-                        Quantity = model.Quantity,
+                        //Quantity = model.Quantity,
+                        Quantity = 0, // Default quantity to 0
                         CreatedAt = DateTime.Now
                     };
                     db.Products.InsertOnSubmit(model);
