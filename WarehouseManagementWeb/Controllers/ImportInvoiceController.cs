@@ -11,7 +11,7 @@ namespace WarehouseManagementWeb.Controllers
     public class ImportInvoiceController : Controller
     {
         // GET: ImportInvoice
-        public ActionResult Index()
+        public ActionResult Index() 
         {
             using (var db = new DBDataContext())
             {
@@ -258,5 +258,43 @@ namespace WarehouseManagementWeb.Controllers
             string shortGuid = Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper();
             return $"HD-II-{shortGuid}";
         }
+
+        [HttpGet]
+        public ActionResult Details(int id)
+        {
+            using (var db = new DBDataContext())
+            {
+                var invoice = db.ImportInvoices.FirstOrDefault(i => i.Id == id);
+
+                if (invoice == null)
+                {
+                    return HttpNotFound();
+                }
+
+                var invoiceDetails = (from detail in db.ImportInvoiceDetails
+                                      join product in db.Products on detail.ProductId equals product.Id
+                                      where detail.ImportInvoiceId == id
+                                      select new ImportInvoiceProductDto
+                                      {
+                                          ProductCode = product.Code,
+                                          ProductName = product.Name,
+                                          Unit = product.Unit,
+                                          UnitPrice = detail.UnitPrice,
+                                          Quantity = detail.Quantity
+                                      }).ToList();
+
+                var dto = new ImportInvoiceDto
+                {
+                    InvoiceCode = invoice.InvoiceCode,
+                    ImportDate = invoice.ImportDate,
+                    SupplierName = invoice.SupplierName,
+                    Note = invoice.Note,
+                    Products = invoiceDetails
+                };
+
+                return PartialView("_ImportInvoiceDetailsPartial", dto);
+            }
+        }
+
     }
 }

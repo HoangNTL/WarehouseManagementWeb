@@ -208,6 +208,7 @@
     <Content Include="Views\ExportInvoice\_ExportInvoiceTablePartial.cshtml" />
     <Content Include="Views\ExportInvoice\Add.cshtml" />
     <Content Include="Views\ImportExportStatistic\Index.cshtml" />
+    <Content Include="Views\ImportInvoice\_ImportInvoiceDetailsPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -52,6 +52,23 @@
     </tbody>
 </table>
 
+<!-- Modal -->
+<div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="detailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chi tiết hóa đơn</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="detailsModalBody">
+                <!-- Nội dung chi tiết hóa đơn sẽ load vào đây -->
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     $(document).ready(function () {
         const filter = $('#filterBtn').click(function () {
@@ -94,4 +111,20 @@
             });
         });
     });
+
+       function viewDetails(id) {
+       $.ajax({
+           url: '@Url.Action("Details", "ImportInvoice")',
+           type: 'GET',
+           data: { id: id },
+           success: function (data) {
+               $('#detailsModalBody').html(data);
+               $('#detailsModal').modal('show');
+           },
+           error: function () {
+               alert('Không thể tải chi tiết hóa đơn!');
+           }
+       });
+   }
+
 </script>
