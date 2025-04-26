@@ -18,9 +18,22 @@
         <label>Từ khóa:</label>
         <input type="text" id="searchKeyword" class="form-control" placeholder="Tìm theo mã hoặc NCC" />
     </div>
-    <div class="col-md-3">
+    @*<div class="col-md-3">
         <label>&nbsp;</label>
         <button id="filterBtn" class="btn btn-primary form-control">Lọc</button>
+    </div>*@
+
+    <div class="col-md-3 d-flex align-items-end">
+        <button id="filterBtn" class="btn btn-primary me-2 w-50">Lọc</button>
+        <button id="refreshBtn" class="btn btn-secondary w-50">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                 class="icon icon-tabler icons-tabler-outline icon-tabler-refresh">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
+                <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
+            </svg>
+        </button>
     </div>
 </div>
 
@@ -49,6 +62,29 @@
 
             $.ajax({
                 url: '@Url.Action("FilterByDate", "ExportInvoice")',
+                data: { fromDate: fromDate, toDate: toDate, keyword },
+                success: function (data) {
+                    $('#invoiceTableBody').html(data); // Thay toàn bộ nội dung tbody
+                },
+                error: function () {
+                    alert("Đã xảy ra lỗi khi lọc dữ liệu.");
+                }
+            });
+        });
+
+        $('#refreshBtn').click(function () {
+            // Clear inputs
+            $('#fromDate').val('');
+            $('#toDate').val('');
+            $('#searchKeyword').val('');
+
+            const fromDate = $('#fromDate').val();
+            const toDate = $('#toDate').val();
+            const keyword = $('#searchKeyword').val();
+
+            // Reload full table
+            $.ajax({
+                url: '@Url.Action("FilterByDate", "ImportInvoice")',
                 data: { fromDate: fromDate, toDate: toDate, keyword },
                 success: function (data) {
                     $('#invoiceTableBody').html(data); // Thay toàn bộ nội dung tbody

@@ -1,0 +1,134 @@
+﻿@{
+    ViewBag.Title = "Thống kê nhập xuất kho";
+}
+
+<!-- Bộ lọc -->
+<div class="d-flex align-items-center mb-2">
+    <label class="me-2">Lọc:</label>
+    <select id="statisticType" class="form-select form-select-sm me-2">
+        <option value="day">Theo ngày</option>
+        <option value="month" selected>Theo tháng</option>
+        <option value="quarter">Theo quý</option>
+        <option value="year">Theo các năm</option>
+    </select>
+
+    <select id="monthSelect" class="form-select form-select-sm me-2">
+        @for (int m = 1; m <= 12; m++)
+        {
+            <option value="@m" @(m == DateTime.Now.Month ? "selected" : "")>Tháng @m</option>
+        }
+    </select>
+
+    <select id="yearSelect" class="form-select form-select-sm">
+        @for (int y = 2020; y <= DateTime.Now.Year; y++)
+        {
+            <option value="@y" @(y == DateTime.Now.Year ? "selected" : "")>@y</option>
+        }
+    </select>
+</div>
+
+<!-- Biểu đồ thống kê nhập xuất -->
+<div class="card card-primary">
+    <div class="card-header d-flex justify-content-center align-items-center">
+        <h1 id="chartTitle" class="card-title fw-bold">Biểu đồ thống kê nhập xuất</h1>
+    </div>
+
+    <div class="card-body">
+        <div class="chart">
+            <canvas id="barChart" style="min-height: 300px; height: 300px; max-height: 400px; max-width: 100%;"></canvas>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    let chartInstance;
+
+    function updateChartTitle() {
+        const type = $('#statisticType').val();
+        const month = $('#monthSelect').val();
+        const year = $('#yearSelect').val();
+        let title = 'Biểu đồ thống kê nhập xuất';
+
+        if (type === 'day') {
+            title = `Biểu đồ thống kê nhập xuất tháng ${month} năm ${year}`;
+        } else if (type === 'month' || type === 'quarter') {
+            title = `Biểu đồ thống kê nhập xuất năm ${year}`;
+        } else if (type === 'year') {
+            title = `Biểu đồ thống kê nhập xuất các năm`;
+        }
+
+        $('#chartTitle').text(title);
+    }
+
+    function fetchAndRenderChart() {
+        const type = $('#statisticType').val();
+        const month = $('#monthSelect').val();
+        const year = $('#yearSelect').val();
+
+        // Ẩn/hiện chọn tháng tùy loại
+        if (type === 'day') {
+            $('#monthSelect').show();
+        } else {
+            $('#monthSelect').hide();
+        }
+
+        updateChartTitle(); // cập nhật tiêu đề trước khi fetch dữ liệu
+
+        $.ajax({
+            url: '@Url.Action("GetImportExportStatistic", "ImportExportStatistic")',
+            method: 'GET',
+            data: { type, month, year },
+            success: function (response) {
+                const labels = response.map(x => x.Label);
+                const importData = response.map(x => x.ImportQuantity);
+                const exportData = response.map(x => x.ExportQuantity);
+
+                const chartData = {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Nhập kho',
+                            backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                            data: importData
+                        },
+                        {
+                            label: 'Xuất kho',
+                            backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                            data: exportData
+                        }
+                    ]
+                };
+
+                const chartOptions = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                };
+
+                if (chartInstance) {
+                    chartInstance.destroy();
+                }
+
+                const ctx = document.getElementById('barChart').getContext('2d');
+                chartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: chartData,
+                    options: chartOptions
+                });
+            },
+            error: function (xhr) {
+                console.error('Lỗi khi lấy dữ liệu thống kê', xhr);
+            }
+        });
+    }
+
+    $(function () {
+        $('#statisticType, #monthSelect, #yearSelect').on('change', fetchAndRenderChart);
+        fetchAndRenderChart(); // gọi lần đầu
+    });
+</script>

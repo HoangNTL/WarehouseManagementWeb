@@ -121,6 +121,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ExportInvoiceController.cs" />
+    <Compile Include="Controllers\ImportExportStatisticController.cs" />
     <Compile Include="Controllers\ImportInvoiceController.cs" />
     <Compile Include="Controllers\ProductController.cs" />
     <Compile Include="Global.asax.cs">
@@ -206,6 +207,7 @@
     <Content Include="Views\ExportInvoice\Index.cshtml" />
     <Content Include="Views\ExportInvoice\_ExportInvoiceTablePartial.cshtml" />
     <Content Include="Views\ExportInvoice\Add.cshtml" />
+    <Content Include="Views\ImportExportStatistic\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
