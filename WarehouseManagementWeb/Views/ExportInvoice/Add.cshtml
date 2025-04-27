@@ -82,7 +82,7 @@
 
     let allProducts = [];
 
-     $(document).ready(function () {
+    $(document).ready(function () {
         const $productSelect = $('#ProductId');
         const $productTableBody = $('#productDetailsTable tbody');
 
@@ -101,75 +101,86 @@
             success: function (data) {
                 allProducts = data;
                 data.forEach(item => {
+                    // Tính giá bán với tỷ lệ tăng 10% (hoặc thay đổi tỷ lệ này nếu cần)
+                    const markupPercentage = 0.10; // Tăng 10%
+                    const adjustedPrice = item.Price * (1 + markupPercentage);  // Tính giá đã tăng
+
+                    // Định dạng giá sản phẩm sau khi tăng
+                    const formattedAdjustedPrice = adjustedPrice.toLocaleString('vi-VN');
+
+                    // Thêm sản phẩm vào select
                     const option = new Option(`${item.Name} (${item.Code})`, item.Id, false, false);
                     $productSelect.append(option);
                 });
-                $productSelect.trigger('change'); // cập nhật lại Select2 sau khi append
+
+                $productSelect.trigger('change'); // Cập nhật lại Select2 sau khi append
             }
         });
 
-         // Khi chọn sản phẩm
-         $productSelect.on('change', function () {
-             const selectedIds = $(this).val() || [];
-             $productTableBody.empty();
-             let index = 1;
-             selectedIds.forEach(id => {
-                 const product = allProducts.find(p => p.Id == id);
-                 if (product) {
-                     // Định dạng giá thành tiền
-                     const formattedPrice = product.Price.toLocaleString('vi-VN');
+        // Khi chọn sản phẩm
+        $productSelect.on('change', function () {
+            const selectedIds = $(this).val() || [];
+            $productTableBody.empty();
+            let index = 1;
+            selectedIds.forEach(id => {
+                const product = allProducts.find(p => p.Id == id);
+                if (product) {
+                    // Tính giá bán với tỷ lệ tăng 10% (hoặc thay đổi tỷ lệ này nếu cần)
+                    const markupPercentage = 0.10; // Tăng 10%
+                    const adjustedPrice = product.Price * (1 + markupPercentage);  // Tính giá đã tăng
 
-                     // Thêm thuộc tính 'data-price' để lưu giá gốc (không định dạng)
-                     $productTableBody.append(`
-                <tr data-id="${product.Id}">
-                    <td>${index++}</td>
-                    <td>${product.Name} (${product.Code})</td>
-                    <td><input type="text" class="form-control stock-quantity" value="${product.Quantity}" readonly /></td>
-                    <td><input type="number" class="form-control quantity" value="1" min="1" /></td>
-                    <td><input type="text" class="form-control" value="${product.Unit}" readonly /></td>
-                    <td><input type="text" class="form-control unit-price" value="${formattedPrice}" readonly data-price="${product.Price}" /></td>
-                    <td><input type="text" class="form-control total-price" value="${formattedPrice}" readonly /></td>
-                </tr>
-            `);
-                 }
-             });
-         });
+                    // Định dạng giá sản phẩm sau khi tăng
+                    const formattedPrice = adjustedPrice.toLocaleString('vi-VN');
 
-         // Cập nhật thành tiền khi thay đổi số lượng
-         $(document).on('input', '.quantity', function () {
-             const $row = $(this).closest('tr');
-             const quantity = parseInt($(this).val()) || 0;
+                    // Thêm thuộc tính 'data-price' để lưu giá gốc (không định dạng)
+                    $productTableBody.append(`
+                        <tr data-id="${product.Id}">
+                            <td>${index++}</td>
+                            <td>${product.Name} (${product.Code})</td>
+                            <td><input type="text" class="form-control stock-quantity" value="${product.Quantity}" readonly /></td>
+                            <td><input type="number" class="form-control quantity" value="1" min="1" /></td>
+                            <td><input type="text" class="form-control" value="${product.Unit}" readonly /></td>
+                            <td><input type="text" class="form-control unit-price" value="${formattedPrice}" readonly data-price="${adjustedPrice}" /></td>
+                            <td><input type="text" class="form-control total-price" value="${formattedPrice}" readonly /></td>
+                        </tr>
+                    `);
+                }
+            });
+        });
 
-             // Lấy giá thuần túy từ 'data-price' và tính toán tổng tiền
-             const unitPrice = parseFloat($row.find('.unit-price').data('price')) || 0;
-             const total = quantity * unitPrice;
+        // Cập nhật thành tiền khi thay đổi số lượng
+        $(document).on('input', '.quantity', function () {
+            const $row = $(this).closest('tr');
+            const quantity = parseInt($(this).val()) || 0;
 
-             // Định dạng tổng tiền
-             const formattedTotal = total.toLocaleString('vi-VN');
+            // Lấy giá thuần túy từ 'data-price' và tính toán tổng tiền (giá đã tăng)
+            const unitPrice = parseFloat($row.find('.unit-price').data('price')) || 0;
 
-             // Cập nhật giá trị vào ô tổng tiền
-             $row.find('.total-price').val(formattedTotal);
+            // Định dạng tổng tiền
+            const total = quantity * unitPrice;
+            const formattedTotal = total.toLocaleString('vi-VN');
 
-             // Kiểm tra số lượng xuất có vượt tồn kho không
-             const stock = parseInt($row.find('.stock-quantity').val()) || 0;
+            // Cập nhật tổng tiền vào ô
+            $row.find('.total-price').val(formattedTotal);  // Cập nhật tổng tiền
 
-             if (quantity > stock) {
-                 $(this).addClass('is-invalid');  // Thêm lớp lỗi nếu số lượng vượt quá tồn kho
-                 if ($row.find('.stock-warning').length === 0) {
-                     // Hiển thị thông báo lỗi nếu chưa có
-                     $row.find('td:last').append(`<div class="text-danger stock-warning">Vượt quá tồn kho (${stock})</div>`);
-                 }
-             } else {
-                 $(this).removeClass('is-invalid');  // Bỏ lớp lỗi nếu số lượng hợp lệ
-                 $row.find('.stock-warning').remove();  // Xóa thông báo lỗi nếu có
-             }
-         });
+            // Kiểm tra số lượng xuất có vượt tồn kho không
+            const stock = parseInt($row.find('.stock-quantity').val()) || 0;
 
+            if (quantity > stock) {
+                $(this).addClass('is-invalid');  // Thêm lớp lỗi nếu số lượng vượt quá tồn kho
+                if ($row.find('.stock-warning').length === 0) {
+                    // Hiển thị thông báo lỗi nếu chưa có
+                    $row.find('td:last').append(`<div class="text-danger stock-warning">Vượt quá tồn kho (${stock})</div>`);
+                }
+            } else {
+                $(this).removeClass('is-invalid');  // Bỏ lớp lỗi nếu số lượng hợp lệ
+                $row.find('.stock-warning').remove();  // Xóa thông báo lỗi nếu có
+            }
+        });
 
         // Gửi form
         $('#formHoaDonXuat').submit(function (event) {
             event.preventDefault();
-            // Kiểm tra tồn kho trước khi gửi
             let isValid = true;
             $('#productDetailsTable tbody tr').each(function () {
                 const $row = $(this);
@@ -208,15 +219,13 @@
             });
 
             const invoiceData = {
-                InvoiceCode: $('#MaHD').val(), // bo
+                InvoiceCode: $('#MaHD').val(),
                 ExportDate: $('#NgayXuat').val(),
                 CustomerName: $('#Tenkhach').val(),
                 Staff: $('#NhanVien').val(),
                 Note: $('#GhiChu').val(),
                 Products: products
             };
-
-            console.log(invoiceData); // kiểm tra
 
             $.ajax({
                 url: '@Url.Action("Create", "ExportInvoice")',
@@ -228,7 +237,7 @@
                     $('#formHoaDonXuat')[0].reset();
                     $productTableBody.empty();
                     $productSelect.val([]).trigger('change');
-                    window.location.href = '@Url.Action("Index", "ExportInvoice")'; // Redirect to the index page
+                    window.location.href = '@Url.Action("Index", "ExportInvoice")';
                 },
                 error: function () {
                     alert('Đã xảy ra lỗi khi thêm hóa đơn.');
@@ -236,4 +245,5 @@
             });
         });
     });
+
 </script>
