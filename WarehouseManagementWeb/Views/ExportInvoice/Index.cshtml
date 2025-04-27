@@ -19,9 +19,9 @@
         <input type="text" id="searchKeyword" class="form-control" placeholder="Tìm theo mã hoặc NCC" />
     </div>
     @*<div class="col-md-3">
-        <label>&nbsp;</label>
-        <button id="filterBtn" class="btn btn-primary form-control">Lọc</button>
-    </div>*@
+            <label>&nbsp;</label>
+            <button id="filterBtn" class="btn btn-primary form-control">Lọc</button>
+        </div>*@
 
     <div class="col-md-3 d-flex align-items-end">
         <button id="filterBtn" class="btn btn-primary me-2 w-50">Lọc</button>
@@ -52,6 +52,23 @@
         @Html.Partial("_ExportInvoiceTablePartial", Model)
     </tbody>
 </table>
+
+<!-- Modal -->
+<div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chi tiết hóa đơn xuất</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="detailModalBody">
+                <!-- Nội dung load ajax ở đây -->
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
     $(document).ready(function () {
@@ -95,4 +112,18 @@
             });
         });
     });
+
+    function viewDetails(id) {
+        $.ajax({
+            url: '@Url.Action("Details", "ExportInvoice")',
+            data: { id: id },
+            success: function (data) {
+                $('#detailModalBody').html(data);
+                $('#detailModal').modal('show');
+            },
+            error: function () {
+                alert('Không thể tải chi tiết hóa đơn.');
+            }
+        });
+    }
 </script>

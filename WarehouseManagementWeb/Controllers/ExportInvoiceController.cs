@@ -250,5 +250,43 @@ namespace WarehouseManagementWeb.Controllers
             string shortGuid = Guid.NewGuid().ToString("N").Substring(0, 8).ToUpper();
             return $"HD-EI-{shortGuid}";
         }
+
+        [HttpGet]
+        public ActionResult Details(int id)
+        {
+            using (var db = new DBDataContext())
+            {
+                var invoice = db.ExportInvoices.FirstOrDefault(i => i.Id == id);
+
+                if (invoice == null)
+                {
+                    return HttpNotFound();
+                }
+
+                var invoiceDetails = (from detail in db.ExportInvoiceDetails
+                                      join product in db.Products on detail.ProductId equals product.Id
+                                      where detail.ExportInvoiceId == id
+                                      select new ExportInvoiceProductDto
+                                      {
+                                          ProductCode = product.Code,
+                                          ProductName = product.Name,
+                                          Unit = product.Unit,
+                                          UnitPrice = detail.UnitPrice,
+                                          Quantity = detail.Quantity
+                                      }).ToList();
+
+                var dto = new ExportInvoiceDto
+                {
+                    InvoiceCode = invoice.InvoiceCode,
+                    ExportDate = invoice.ExportDate,
+                    CustomerName = invoice.CustomerName,
+                    Note = invoice.Note,
+                    Products = invoiceDetails
+                };
+
+                return PartialView("_ExportInvoiceDetailsPartial", dto);
+            }
+        }
+
     }
 }

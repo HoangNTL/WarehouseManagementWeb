@@ -113,18 +113,18 @@
     });
 
        function viewDetails(id) {
-       $.ajax({
-           url: '@Url.Action("Details", "ImportInvoice")',
-           type: 'GET',
-           data: { id: id },
-           success: function (data) {
-               $('#detailsModalBody').html(data);
-               $('#detailsModal').modal('show');
-           },
-           error: function () {
-               alert('Không thể tải chi tiết hóa đơn!');
-           }
-       });
-   }
+           $.ajax({
+               url: '@Url.Action("Details", "ImportInvoice")',
+               type: 'GET',
+               data: { id: id },
+               success: function (data) {
+                   $('#detailsModalBody').html(data);
+                   $('#detailsModal').modal('show');
+               },
+               error: function () {
+                   alert('Không thể tải chi tiết hóa đơn!');
+               }
+           });
+       }
 
 </script>
