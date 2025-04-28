@@ -216,6 +216,86 @@ namespace WarehouseManagementWeb.Controllers
         //        return Json(new { success = true, message = "Cập nhật hóa đơn thành công!" });
         //    }
         //}
+
+
+        [HttpPost]
+        public JsonResult Update(ExportInvoiceDto dto)
+        {
+            using (var db = new DBDataContext())
+            {
+                db.Connection.Open();
+
+                // Bắt đầu transaction
+                using (var transaction = db.Connection.BeginTransaction())
+                {
+                    db.Transaction = transaction;
+
+                    try
+                    {
+                        // Lấy hóa đơn theo mã hóa đơn
+                        var invoice = db.ExportInvoices.FirstOrDefault(i => i.InvoiceCode == dto.InvoiceCode);
+                        if (invoice == null)
+                        {
+                            throw new Exception($"Không tìm thấy hóa đơn với mã {dto.InvoiceCode}");
+                        }
+
+                        // Cập nhật thông tin hóa đơn
+                        invoice.ExportDate = dto.ExportDate;
+                        invoice.CustomerName = dto.CustomerName;
+                        invoice.Note = dto.Note;
+                        invoice.UpdatedAt = DateTime.Now;
+
+                        // Xóa tất cả các chi tiết hóa đơn cũ (có thể thay đổi sản phẩm hoặc số lượng)
+                        var existingDetails = db.ExportInvoiceDetails.Where(d => d.ExportInvoiceId == invoice.Id).ToList();
+                        db.ExportInvoiceDetails.DeleteAllOnSubmit(existingDetails);
+
+                        if (dto.Products != null && dto.Products.Any())
+                        {
+                            foreach (var item in dto.Products)
+                            {
+                                var product = db.Products.FirstOrDefault(p => p.Code == item.ProductCode);
+                                if (product == null)
+                                {
+                                    throw new Exception($"Không tìm thấy sản phẩm với mã {item.ProductCode}");
+                                }
+
+                                // Cập nhật lại số lượng sản phẩm
+                                product.Quantity += item.Quantity;
+                                product.UpdatedAt = DateTime.Now;
+
+                                // Thêm chi tiết hóa đơn nhập mới
+                                var detail = new ExportInvoiceDetail
+                                {
+                                    ExportInvoiceId = invoice.Id,
+                                    ProductId = product.Id,
+                                    Quantity = item.Quantity,
+                                    UnitPrice = (decimal)product.Price,
+                                };
+                                db.ExportInvoiceDetails.InsertOnSubmit(detail);
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("Danh sách sản phẩm rỗng!");
+                        }
+
+                        db.SubmitChanges(); // Lưu toàn bộ thông tin hóa đơn và chi tiết
+                        transaction.Commit(); // Commit transaction
+
+                        return Json(new { success = true, message = "Cập nhật hóa đơn xuất thành công!" });
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback(); // Rollback transaction nếu có lỗi
+                        return Json(new { success = false, message = "Cập nhật hóa đơn thất bại: " + ex.Message });
+                    }
+                    finally
+                    {
+                        db.Connection.Close(); // Đóng kết nối
+                    }
+                }
+            }
+        }
         #endregion
 
         #region Filter Export Invoice
@@ -244,6 +324,7 @@ namespace WarehouseManagementWeb.Controllers
             }
         }
         #endregion
+
 
         private string GenerateInvoiceCode()
         {

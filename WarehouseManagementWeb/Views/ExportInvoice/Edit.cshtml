@@ -1,0 +1,279 @@
+﻿@{
+    ViewBag.Title = "Sửa hóa đơn xuất";
+}
+@model WarehouseManagementWeb.Models.Dtos.ExportInvoiceDto
+@using System.Globalization
+
+<div class="card card-primary">
+    <div class="card-header">
+        <h3 class="card-title">Sửa hóa đơn xuất</h3>
+    </div>
+    <div class="card-body">
+        <form id="formHoaDonXuat">
+            <div class="form-group">
+                <label for="MaHD">Mã hóa đơn:</label>
+                <input type="text" class="form-control" id="MaHD" name="InvoiceCode" value="@Model.InvoiceCode" disabled />
+            </div>
+
+            <div class="form-group">
+                <label for="NgayXuat">Ngày xuất:</label>
+                <div class="input-group date" id="reservationdatetime" data-target-input="nearest">
+                    <input type="text" id="NgayXuat" name="ExportDate"
+                           class="form-control datetimepicker-input"
+                           data-target="#reservationdatetime"
+                           placeholder="yyyy-mm-dd"
+                           value="@Model.ExportDate.ToString("yyyy-MM-dd")" />
+                    <div class="input-group-append" data-target="#reservationdatetime" data-toggle="datetimepicker">
+                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="Tenkhachhang">Tên Khách Hàng:</label>
+                <input type="text" class="form-control" id="Tenkhachhang" name="CustomerName" value="@Model.CustomerName" />
+            </div>
+
+            @*<div class="form-group">
+                    <label for="NhanVien">Nhân viên nhập:</label>
+                    <input type="text" class="form-control" id="NhanVien" name="Staff" placeholder="Tên nhân viên" />
+                </div>*@
+
+            <div class="form-group">
+                <label for="GhiChu">Ghi chú:</label>
+                <textarea class="form-control" id="GhiChu" name="Note">@Model.Note</textarea>
+            </div>
+
+            <hr />
+            <h5>Chi tiết hóa đơn:</h5>
+
+            <div class="form-group">
+                <label>Chọn sản phẩm:</label>
+                <select class="form-control" id="ProductId" name="ProductId" multiple="multiple">
+                    <!-- Option sẽ được thêm bằng JS -->
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Chi tiết sản phẩm đã chọn:</label>
+                <table class="table table-bordered" id="productDetailsTable">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Sản phẩm</th>
+                            <th>Số lượng</th>
+                            <th>Đơn vị</th>
+                            <th>Đơn giá</th>
+                            <th>Thành tiền</th>
+                        </tr>
+                    </thead>
+                    @*<tbody>
+                            @{
+                                int index = 1;
+                                foreach (var product in Model.Products)
+                                {
+                                    <tr data-code="@product.ProductCode" data-id="@product.ProductCode">
+                                        <td>@index</td>
+                                        <td>@product.ProductName (@product.ProductCode)</td>
+                                        <td><input type="number" class="form-control quantity" value="@product.Quantity" min="1" /></td>
+                                        <td><input type="text" class="form-control" value="@product.Unit" readonly /></td>
+                                        <td><input type="text" class="form-control unit-price" value="@product.UnitPrice" readonly /></td>
+                                        <td><input type="text" class="form-control total-price" value="@(product.Quantity * product.UnitPrice)" readonly /></td>
+                                    </tr>
+                                    index++;
+                                }
+                            }
+                        </tbody>*@
+                    <tbody id="productTableBody">
+                        <!-- Các sản phẩm sẽ được load từ script -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary">Cập nhật hóa đơn</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $(function () {
+        $('#reservationdatetime').datetimepicker({
+            icons: { time: 'far fa-clock' },
+            format: 'YYYY-MM-DD'
+        });
+    });
+
+    let allProducts = [];
+
+    $(document).ready(function () {
+        // Truyền Model.Products từ Razor vào một biến JavaScript
+        const modelProducts = @Html.Raw(Json.Encode(Model.Products));
+
+        // Đảm bảo rằng 'modelProducts' đã có dữ liệu
+        console.log(modelProducts); // Kiểm tra trong console
+
+        const $productSelect = $('#ProductId');
+        const $productTableBody = $('#productDetailsTable tbody');
+
+        $productSelect.select2({
+            placeholder: "-- Chọn sản phẩm --",
+            allowClear: true,
+            width: 'resolve'
+        });
+
+        // Load sản phẩm từ ajax
+        $.ajax({
+            url: '@Url.Action("GetProductsAjax", "Product")',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                if (data && Array.isArray(data)) {
+                    allProducts = data;
+
+                    // Check if products are loaded correctly
+                    console.log(allProducts);
+
+                    data.forEach(item => {
+                        const option = new Option(`${item.Name} (${item.Code})`, item.Id, false, false);
+                        $productSelect.append(option);
+                    });
+
+                    const selectedProductCodes = @Html.Raw(Json.Encode(Model.Products.Select(p => p.ProductCode)));
+                    const selectedIds = allProducts
+                        .filter(p => selectedProductCodes.includes(p.Code))
+                        .map(p => p.Id.toString());
+
+                    // Set the selected product IDs
+                    $productSelect.val(selectedIds).trigger('change');
+
+                    // Load chi tiết sản phẩm vào bảng
+                    loadProductDetails(modelProducts);
+                } else {
+                    console.error('Data is invalid or empty');
+                }
+            },
+            error: function (err) {
+                console.error('Error loading products:', err);
+            }
+        });
+
+        // Load chi tiết sản phẩm vào bảng
+        function loadProductDetails(products) {
+            const $productTableBody = $('#productDetailsTable tbody');
+            $productTableBody.empty();  // Xóa bảng trước khi load lại
+
+            let index = 1;
+            products.forEach(product => {
+                const unitPriceFormatted = product.UnitPrice.toLocaleString('vi-VN');
+                const totalPriceFormatted = (product.Quantity * product.UnitPrice).toLocaleString('vi-VN');
+
+                // Append row vào bảng
+                $productTableBody.append(`
+                    <tr data-id="${product.ProductId}" data-code="${product.ProductCode}">
+                        <td>${index++}</td>
+                        <td>${product.ProductName} (${product.ProductCode})</td>
+                        <td><input type="number" class="form-control quantity" value="${product.Quantity}" min="1" /></td>
+                        <td><input type="text" class="form-control" value="${product.Unit}" readonly /></td>
+                        <td><input type="text" class="form-control unit-price" value="${unitPriceFormatted}" readonly /></td>
+                        <td><input type="text" class="form-control total-price" value="${totalPriceFormatted}" readonly /></td>
+                    </tr>
+                `);
+            });
+        }
+
+        // Cập nhật thành tiền khi thay đổi số lượng
+        $(document).on('input', '.quantity', function () {
+            const $row = $(this).closest('tr');
+            const quantity = parseInt($(this).val()) || 0;
+            const unitPrice = parseFloat($row.find('.unit-price').val().replace(/,/g, '')) || 0;
+            const totalPrice = quantity * unitPrice;
+
+            // Cập nhật giá thành tiền theo định dạng tiền Việt Nam
+            $row.find('.total-price').val(totalPrice.toLocaleString('vi-VN'));
+
+            // Tính tổng tiền
+            let total = 0;
+            $('#productDetailsTable tbody tr').each(function () {
+                const rowTotal = parseFloat($(this).find('.total-price').val().replace(/,/g, '')) || 0;
+                total += rowTotal;
+            });
+            $('#totalAmount').text(total.toLocaleString('vi-VN'));  // Hiển thị tổng tiền ở phần giao diện
+        });
+
+        // Cập nhật bảng khi chọn sản phẩm
+        $productSelect.on('change', function () {
+            const selectedIds = $(this).val() || [];
+            const $productTableBody = $('#productDetailsTable tbody');
+            $productTableBody.empty();
+
+            let index = 1;
+            selectedIds.forEach(id => {
+                const product = allProducts.find(p => p.Id == id);
+                if (product) {
+                    // Tìm số lượng đã chọn cho sản phẩm trong bảng chi tiết
+                    const existingProduct = modelProducts.find(p => p.ProductCode === product.Code);
+                    const quantity = existingProduct ? existingProduct.Quantity : 1; // Mặc định là 1 nếu không có số lượng trước đó
+
+                    // Append row vào bảng
+                    $productTableBody.append(`
+                        <tr data-id="${product.Id}" data-code="${product.Code}">
+                            <td>${index++}</td>
+                            <td>${product.Name} (${product.Code})</td>
+                            <td><input type="number" class="form-control quantity" value="${quantity}" min="1" /></td>
+                            <td><input type="text" class="form-control" value="${product.Unit}" readonly /></td>
+                            <td><input type="text" class="form-control unit-price" value="${product.Price.toLocaleString('vi-VN')}" readonly /></td>
+                            <td><input type="text" class="form-control total-price" value="${(quantity * product.Price).toLocaleString('vi-VN')}" readonly /></td>
+                        </tr>
+                    `);
+                }
+            });
+        });
+
+        // Gửi form khi cập nhật hóa đơn
+        $('#formHoaDonXuat').submit(function (event) {
+            event.preventDefault();
+
+            const products = [];
+            $('#productDetailsTable tbody tr').each(function () {
+                const id = $(this).data('id');
+                const quantity = parseInt($(this).find('.quantity').val());
+                const unitPrice = parseFloat($(this).find('.unit-price').val());
+                const product = allProducts.find(p => p.Id == id);
+
+                if (product && quantity > 0) {
+                    products.push({
+                        ProductCode: product.Code,
+                        ProductName: product.Name,
+                        Quantity: quantity,
+                        UnitPrice: unitPrice
+                    });
+                }
+            });
+
+            const invoiceData = {
+                InvoiceCode: $('#MaHD').val(),
+                ExportDate: $('#NgayXuat').val(),
+                CustomerName: $('#Tenkhachhang').val(),
+                Note: $('#GhiChu').val(),
+                Products: products
+            };
+
+            $.ajax({
+                url: '@Url.Action("Update", "ExportInvoice")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(invoiceData),
+                success: function (response) {
+                    alert(response.message || 'Cập nhật hóa đơn thành công!');
+                    window.location.href = '@Url.Action("Index", "ExportInvoice")'; // Redirect to the index page
+                },
+                error: function () {
+                    alert('Đã xảy ra lỗi khi cập nhật hóa đơn.');
+                }
+            });
+        });
+    });
+</script>
