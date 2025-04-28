@@ -16,6 +16,7 @@ namespace WarehouseManagementWeb.Controllers
             return View();
         }
 
+        [HttpGet]
         public JsonResult GetImportExportStatistic(string type, int? month, int? year)
         {
             var now = DateTime.Now;
@@ -102,31 +103,37 @@ namespace WarehouseManagementWeb.Controllers
                 }
                 else if (type == "year")
                 {
+                    var currentYear = DateTime.Now.Year; // Lấy năm hiện tại
+                    var years = Enumerable.Range(2022, currentYear - 2022 + 1).ToList(); // Tạo dãy năm từ 2022 đến năm hiện tại
+
                     var importGrouped = importData
                         .GroupBy(x => x.ImportDate.Year)
-                        .Select(g => new { Year = g.Key, Quantity = g.Sum(x => x.Quantity) });
+                        .Select(g => new { Year = g.Key, Quantity = g.Sum(x => x.Quantity) })
+                        .ToList();
 
                     var exportGrouped = exportData
                         .GroupBy(x => x.ExportDate.Year)
-                        .Select(g => new { Year = g.Key, Quantity = g.Sum(x => x.Quantity) });
+                        .Select(g => new { Year = g.Key, Quantity = g.Sum(x => x.Quantity) })
+                        .ToList();
 
-                    var allYears = importGrouped.Select(x => x.Year).Union(exportGrouped.Select(x => x.Year)).Distinct().OrderBy(y => y);
-
-                    foreach (var y in allYears)
+                    foreach (var yearLabel in years)
                     {
+                        var importQuantity = importGrouped.FirstOrDefault(x => x.Year == yearLabel)?.Quantity ?? 0;
+                        var exportQuantity = exportGrouped.FirstOrDefault(x => x.Year == yearLabel)?.Quantity ?? 0;
+
                         result.Add(new
                         {
-                            Label = y.ToString(),
-                            ImportQuantity = importGrouped.FirstOrDefault(x => x.Year == y)?.Quantity ?? 0,
-                            ExportQuantity = exportGrouped.FirstOrDefault(x => x.Year == y)?.Quantity ?? 0
+                            Label = yearLabel.ToString(),
+                            ImportQuantity = importQuantity,
+                            ExportQuantity = exportQuantity
                         });
                     }
                 }
 
+
+
                 return Json(result, JsonRequestBehavior.AllowGet);
             }    
-
-
         }
 
     }

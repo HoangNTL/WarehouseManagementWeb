@@ -1,0 +1,129 @@
+﻿@{
+    ViewBag.Title = "Thống kê doanh thu";
+}
+
+<!-- Bộ lọc -->
+<div class="d-flex align-items-center mb-2">
+    <label class="me-2">Lọc:</label>
+    <select id="revenueStatisticType" class="form-select form-select-sm me-2">
+        <option value="day">Theo ngày</option>
+        <option value="month" selected>Theo tháng</option>
+        <option value="quarter">Theo quý</option>
+        <option value="year">Theo các năm</option>
+    </select>
+
+    <select id="revenueMonthSelect" class="form-select form-select-sm me-2">
+        @for (int m = 1; m <= 12; m++)
+        {
+            <option value="@m" @(m == DateTime.Now.Month ? "selected" : "")>Tháng @m</option>
+        }
+    </select>
+
+    <select id="revenueYearSelect" class="form-select form-select-sm">
+        @for (int y = 2020; y <= DateTime.Now.Year; y++)
+        {
+            <option value="@y" @(y == DateTime.Now.Year ? "selected" : "")>@y</option>
+        }
+    </select>
+</div>
+
+<!-- Biểu đồ doanh thu -->
+<div class="card card-primary">
+    <div class="card-header d-flex justify-content-center align-items-center">
+        <h1 id="revenueChartTitle" class="card-title fw-bold">Biểu đồ thống kê doanh thu</h1>
+    </div>
+
+    <div class="card-body">
+        <div class="chart">
+            <canvas id="revenueLineChart" style="min-height: 300px; height: 300px; max-height: 400px; max-width: 100%;"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    let revenueChartInstance;
+
+    function updateRevenueChartTitle() {
+        const type = $('#revenueStatisticType').val();
+        const month = $('#revenueMonthSelect').val();
+        const year = $('#revenueYearSelect').val();
+        let title = 'Biểu đồ thống kê doanh thu';
+
+        if (type === 'day') {
+            title = `Biểu đồ doanh thu tháng ${month} năm ${year}`;
+        } else if (type === 'month' || type === 'quarter') {
+            title = `Biểu đồ doanh thu năm ${year}`;
+        } else if (type === 'year') {
+            title = `Biểu đồ doanh thu các năm`;
+        }
+
+        $('#revenueChartTitle').text(title);
+    }
+
+    function fetchAndRenderRevenueChart() {
+        const type = $('#revenueStatisticType').val();
+        const month = $('#revenueMonthSelect').val();
+        const year = $('#revenueYearSelect').val();
+
+        if (type === 'day') {
+            $('#revenueMonthSelect').show();
+        } else {
+            $('#revenueMonthSelect').hide();
+        }
+
+        updateRevenueChartTitle();
+
+        $.ajax({
+            url: '@Url.Action("GetRevenueStatistic", "RevenueStatistic")', // Gọi API Controller
+            method: 'GET',
+            data: { type, month, year },
+            success: function (response) {
+                const labels = response.map(x => x.Label);
+                const revenueData = response.map(x => x.Revenue);
+
+                const chartData = {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Doanh thu',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            tension: 0.4, // Đường cong nhẹ
+                            fill: true,
+                            data: revenueData
+                        }
+                    ]
+                };
+
+                const chartOptions = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                };
+
+                if (revenueChartInstance) {
+                    revenueChartInstance.destroy();
+                }
+
+                const ctx = document.getElementById('revenueLineChart').getContext('2d');
+                revenueChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: chartData,
+                    options: chartOptions
+                });
+            },
+            error: function (xhr) {
+                console.error('Lỗi khi lấy dữ liệu thống kê doanh thu', xhr);
+            }
+        });
+    }
+
+    $(function () {
+        $('#revenueStatisticType, #revenueMonthSelect, #revenueYearSelect').on('change', fetchAndRenderRevenueChart);
+        fetchAndRenderRevenueChart();
+    });
+</script>
