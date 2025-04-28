@@ -254,7 +254,7 @@ namespace WarehouseManagementWeb.Controllers
         [HttpGet]
         public ActionResult Details(int id)
         {
-            using (var db = new DBDataContext())
+            using (var db = new DBDataContext())    
             {
                 var invoice = db.ExportInvoices.FirstOrDefault(i => i.Id == id);
 

@@ -61,7 +61,7 @@
                 <h5 class="modal-title">Chi tiết hóa đơn xuất</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Đóng">
                     <span aria-hidden="true">&times;</span>
-                </button>
+                </button>   
             </div>
             <div class="modal-body" id="detailModalBody">
                 <!-- Nội dung load ajax ở đây -->
@@ -101,7 +101,7 @@
 
             // Reload full table
             $.ajax({
-                url: '@Url.Action("FilterByDate", "ImportInvoice")',
+                url: '@Url.Action("FilterByDate", "ExportInvoice")',
                 data: { fromDate: fromDate, toDate: toDate, keyword },
                 success: function (data) {
                     $('#invoiceTableBody').html(data); // Thay toàn bộ nội dung tbody

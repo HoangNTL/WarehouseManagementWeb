@@ -11,6 +11,7 @@
 <table class="table">
     <thead>
         <tr>
+            <th>Stt</th>
             <th>Mã sản phẩm</th>
             <th>Tên sản phẩm</th>
             <th>Đơn vị</th>
@@ -19,9 +20,11 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var product in Model.Products)
+        @for (int i = 0; i < Model.Products.Count; i++)
         {
+            var product = Model.Products[i];
             <tr>
+                <td>@(i + 1)</td>
                 <td>@product.ProductCode</td>
                 <td>@product.ProductName</td>
                 <td>@product.Unit</td>
