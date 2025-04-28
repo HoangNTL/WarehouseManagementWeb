@@ -188,7 +188,7 @@
         $(document).on('input', '.quantity', function () {
             const $row = $(this).closest('tr');
             const quantity = parseInt($(this).val()) || 0;
-            const unitPrice = parseFloat($row.find('.unit-price').val().replace(/,/g, '')) || 0;
+            const unitPrice = parseFloat($row.find('.unit-price').val().replace(/\./g, '')) || 0;
             const totalPrice = quantity * unitPrice;
 
             // Cập nhật giá thành tiền theo định dạng tiền Việt Nam
@@ -197,7 +197,7 @@
             // Tính tổng tiền
             let total = 0;
             $('#productDetailsTable tbody tr').each(function () {
-                const rowTotal = parseFloat($(this).find('.total-price').val().replace(/,/g, '')) || 0;
+                const rowTotal = parseFloat($(this).find('.total-price').val().replace(/\./g, '')) || 0;
                 total += rowTotal;
             });
             $('#totalAmount').text(total.toLocaleString('vi-VN'));  // Hiển thị tổng tiền ở phần giao diện
