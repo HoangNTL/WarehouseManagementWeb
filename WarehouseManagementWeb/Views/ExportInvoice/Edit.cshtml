@@ -167,12 +167,16 @@
 
             let index = 1;
             products.forEach(product => {
+                // Lấy lại ID từ allProducts theo ProductCode
+                const fullProduct = allProducts.find(p => p.Code === product.ProductCode);
+                if (!fullProduct) return; // bỏ qua nếu không tìm thấy
+
                 const unitPriceFormatted = product.UnitPrice.toLocaleString('vi-VN');
                 const totalPriceFormatted = (product.Quantity * product.UnitPrice).toLocaleString('vi-VN');
 
                 // Append row vào bảng
                 $productTableBody.append(`
-                    <tr data-id="${product.ProductId}" data-code="${product.ProductCode}">
+                    <tr data-id="${fullProduct.Id}" data-code="${product.ProductCode}">
                         <td>${index++}</td>
                         <td>${product.ProductName} (${product.ProductCode})</td>
                         <td><input type="number" class="form-control quantity" value="${product.Quantity}" min="1" /></td>
@@ -252,6 +256,8 @@
                     });
                 }
             });
+
+            console.log('san pham: ', products)
 
             const invoiceData = {
                 InvoiceCode: $('#MaHD').val(),

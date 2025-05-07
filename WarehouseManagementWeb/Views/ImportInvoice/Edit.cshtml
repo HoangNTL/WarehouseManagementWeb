@@ -112,9 +112,6 @@
         // Truyền Model.Products từ Razor vào một biến JavaScript
         const modelProducts = @Html.Raw(Json.Encode(Model.Products));
 
-        // Đảm bảo rằng 'modelProducts' đã có dữ liệu
-        console.log(modelProducts); // Kiểm tra trong console
-
         const $productSelect = $('#ProductId');
         const $productTableBody = $('#productDetailsTable tbody');
 
@@ -132,9 +129,6 @@
             success: function (data) {
                 if (data && Array.isArray(data)) {
                     allProducts = data;
-
-                    // Check if products are loaded correctly
-                    console.log(allProducts);
 
                     data.forEach(item => {
                         const option = new Option(`${item.Name} (${item.Code})`, item.Id, false, false);
@@ -167,22 +161,26 @@
 
             let index = 1;
             products.forEach(product => {
+                // Lấy lại ID từ allProducts theo ProductCode
+                const fullProduct = allProducts.find(p => p.Code === product.ProductCode);
+                if (!fullProduct) return; // bỏ qua nếu không tìm thấy
+
                 const unitPriceFormatted = product.UnitPrice.toLocaleString('vi-VN');
                 const totalPriceFormatted = (product.Quantity * product.UnitPrice).toLocaleString('vi-VN');
 
-                // Append row vào bảng
                 $productTableBody.append(`
-                    <tr data-id="${product.ProductId}" data-code="${product.ProductCode}">
-                        <td>${index++}</td>
-                        <td>${product.ProductName} (${product.ProductCode})</td>
-                        <td><input type="number" class="form-control quantity" value="${product.Quantity}" min="1" /></td>
-                        <td><input type="text" class="form-control" value="${product.Unit}" readonly /></td>
-                        <td><input type="text" class="form-control unit-price" value="${unitPriceFormatted}" readonly /></td>
-                        <td><input type="text" class="form-control total-price" value="${totalPriceFormatted}" readonly /></td>
-                    </tr>
-                `);
+            <tr data-id="${fullProduct.Id}" data-code="${product.ProductCode}">
+                <td>${index++}</td>
+                <td>${product.ProductName} (${product.ProductCode})</td>
+                <td><input type="number" class="form-control quantity" value="${product.Quantity}" min="1" /></td>
+                <td><input type="text" class="form-control" value="${product.Unit}" readonly /></td>
+                <td><input type="text" class="form-control unit-price" value="${unitPriceFormatted}" readonly /></td>
+                <td><input type="text" class="form-control total-price" value="${totalPriceFormatted}" readonly /></td>
+            </tr>
+        `);
             });
         }
+
 
         // Cập nhật thành tiền khi thay đổi số lượng
         $(document).on('input', '.quantity', function () {
@@ -239,8 +237,10 @@
             const products = [];
             $('#productDetailsTable tbody tr').each(function () {
                 const id = $(this).data('id');
+                console.log(id)
                 const quantity = parseInt($(this).find('.quantity').val());
-                const unitPrice = parseFloat($(this).find('.unit-price').val());
+                const unitPrice = parseFloat($(this).find('.unit-price').val().replace(/\./g, '')) || 0;
+
                 const product = allProducts.find(p => p.Id == id);
 
                 if (product && quantity > 0) {
@@ -252,6 +252,8 @@
                     });
                 }
             });
+
+            console.log(products); // Debugging: log the products array to console
 
             const invoiceData = {
                 InvoiceCode: $('#MaHD').val(),
